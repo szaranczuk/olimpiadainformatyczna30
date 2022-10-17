@@ -17,7 +17,7 @@ ll free_idx = 0ll;
 //vector<bool> vis;
 
 
-void dfs1(int v, ll path)
+void dfs1(int v, ll& path)
 {
 	idx[v] = free_idx;
 	if (p[v] == 0) dupadupa.insert(free_idx);
@@ -28,7 +28,9 @@ void dfs1(int v, ll path)
 		if (u.second != p[v])
 		{
 			p[u.second] = v;
-			dfs1(u.second, path + u.first);
+			path += u.first;
+			dfs1(u.second, path);
+			path -=u.first;
 			subtree_size[idx[v]] += subtree_size[idx[u.second]] + 1;
 		}
 	}
@@ -89,7 +91,40 @@ int main()
         Adj[a].push_back({w, b});
         Adj[b].push_back({w, a});
     }
-    dfs1(0, 0ll);
+    ll path = 0ll;
+    //dfs rekurencyjnie sie wysrywa xD
+    stack<ii> dfs;
+    vector<bool> vis(n, false);
+    dfs.push({0ll, 0});
+    while (!dfs.empty())
+    {
+	    ii v = dfs.top();
+	    if (vis[v.second])
+	    {
+		    path -= v.first;
+		    for (ii u : Adj[v.second])
+		    {
+			if (u.second != p[v.second])
+				subtree_size[idx[v.second]] += subtree_size[idx[u.second]] + 1;
+		    }
+		    dfs.pop();
+		    continue;
+	    }
+	    path += v.first;
+	    dist[v.second] = path;
+	    vis[v.second] = true;
+	    idx[v.second] = free_idx;
+	    if (p[v.second] == 0) dupadupa.insert(free_idx);
+	    free_idx++;
+	    for (ii u : Adj[v.second])
+	    {
+		    if (!vis[u.second])
+		    {
+			    p[u.second] = v.second;
+			    dfs.push(u);
+		    }
+	    }
+    }
     ll res = 0ll;
     update(0, 0, n -1, 1, 0);
     for (int i = 0; i < k; i++)
