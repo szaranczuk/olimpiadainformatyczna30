@@ -6,23 +6,40 @@ typedef long long ll;
 typedef pair<ll, int> ii;
 
 vector<vector<ii>> Adj;
-vector<ll> ans;
+vector<ll> wioska_cost;
+vector<ll> wioska_count;
 vector<bool> isWioska;
 vector<int> p;
 //vector<bool> vis;
 
-void dfs(int v, ll path)
+void dfs1(int v, ll path)
 {
-    if (isWioska[v])
-    {
-        ans[v] = path;
-    }
     for (ii u : Adj[v])
     {
         if (u.second != p[v])
         {
             p[u.second] = v;
-            dfs(u.second, path + u.first);
+            dfs1(u.second, path + u.first);
+            wioska_count[v] += wioska_count[u.second];
+        }
+    }
+    if (isWioska[v])
+    {
+        wioska_cost[0] += path;
+        wioska_count[v]++;
+    }
+}
+
+void dfs2(int v, ll upper_wioski)
+{
+    for (ii u : Adj[v])
+    {
+        if (u.second != p[v])
+        {
+            wioska_cost[u.second] = wioska_cost[v];
+            wioska_cost[u.second] -= u.first * wioska_count[u.second];
+            wioska_cost[u.second] += u.first * (wioska_count[v] - wioska_count[u.second] + upper_wioski);
+            dfs2(u.second, upper_wioski + wioska_count[v] - wioska_count[u.second]);
         }
     }
 }
@@ -34,7 +51,8 @@ int main()
     ll n, k;
     cin >> n >> k;
     Adj.resize(n);
-    ans.assign(n, 0ll);
+    wioska_cost.assign(n, 0ll);
+    wioska_count.assign(n, 0ll);
     p.assign(n, -1);
     isWioska.assign(n, false);
     isWioska[0] = true;
@@ -57,17 +75,25 @@ int main()
         isWioska[a] = true;
         q.push(a);
     }
-    dfs(0, 0ll);
+    dfs1(0, 0ll);
+    dfs2(0, 0ll);
     ll res = 0ll;
+    for (int i = 0; i < n; i++)
+    {
+        if (isWioska[i])
+            res += wioska_cost[i];
+    }
     int cnt = k + 1;
     stack<ll> out;
-    for (int i = 0; i < n; i++) res += ans[i];
+    ll odejmnik = 0ll;
     while (!q.empty())
     {
         int v = q.top();
         q.pop();
-        out.push(cnt * res);
-        cnt--;
+        out.push(res);
+        res -= 2 * wioska_cost[v];
+        res += odejmnik;
+        odejmnik += wioska_cost[v];
     }
     while (!out.empty())
     {
