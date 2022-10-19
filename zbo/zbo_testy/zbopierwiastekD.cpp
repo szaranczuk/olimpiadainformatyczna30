@@ -18,7 +18,7 @@ vector<vector<ii>> Adj;      //original adj list
 vector<vector<ii>> blockAdj; //adj list between vertices in one block
 vector<vector<iii>> treeAdj; //adj list between blocks, values are [weight, block_to, vertex_from, vertex_to]
 vector<int> blockid;         //blockid[v] - id of block which contains v
-vector<ii> root_of_block;    //subtrees dont have roots, this is vector of missing roots
+vector<ii> root_of_block;    //see solution description
 vector<ll> subtree_size;
 vector<unordered_map<int, ll>> dist;      //dist[v][u] - distance from v to u if v and u are in the same group, undefined otherwise
 vector<unordered_map<int, ll>> block_sum; //block_sum[block][v] is sum of paths from v to every castle in block
@@ -28,7 +28,7 @@ vector<int> vertices_without_group;       //used to group vertices
 vector<vector<int>> blocks;               //vertices in one block
 ll path = 0ll;
 
-const ll B = 1000;
+const ll B = 2;
 
 void dfs1(int v)
 {
@@ -163,7 +163,7 @@ int main()
     //Iterative dfs to group vertices up. Recursive dfs leads to stack overflow on 1MB stack
     stack<ii> dfs;
     dfs.push({0ll, 0});
-    root_of_block.reserve(n);
+    root_of_block.resize(n);
     blockid.resize(2*n);
     while (!dfs.empty())
     {
@@ -174,7 +174,7 @@ int main()
             ii par = p[v.second];
             if (par.second != -1 && vertices_without_group.size() >= B)
             {
-                root_of_block.push_back(par);
+                root_of_block[block_count] = par;
                 for (int u : vertices_without_group)
                 {
                     blockid[u] = block_count;
@@ -227,7 +227,7 @@ int main()
         }
     }
     blocks.resize(block_count + 1);
-    for (int i = 0; i < n + block_count; i++)
+    for (int i = 0; i <= n + block_count; i++)
     {
         blocks[blockid[i]].push_back(i);
     }

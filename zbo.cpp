@@ -18,7 +18,7 @@ vector<vector<ii>> Adj;      //original adj list
 vector<vector<ii>> blockAdj; //adj list between vertices in one block
 vector<vector<iii>> treeAdj; //adj list between blocks, values are [weight, block_to, vertex_from, vertex_to]
 vector<int> blockid;         //blockid[v] - id of block which contains v
-vector<ii> root_of_block;    //subtrees dont have roots, this is vector of missing roots
+vector<ii> root_of_block;    //see solution description
 vector<ll> subtree_size;
 vector<unordered_map<int, ll>> dist;      //dist[v][u] - distance from v to u if v and u are in the same group, undefined otherwise
 vector<unordered_map<int, ll>> block_sum; //block_sum[block][v] is sum of paths from v to every castle in block
