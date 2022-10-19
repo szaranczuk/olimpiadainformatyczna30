@@ -117,7 +117,7 @@ void blockdfs(int v, int s, int dupa)
     }
 }
 
-void treedfs(int v)
+void treedfs(int v, int s)
 {
     vis[v] = true;
     for (auto u_p : treeAdj[v])
@@ -126,10 +126,10 @@ void treedfs(int v)
         {
             int from = get<1>(u_p);
             int to = get<2>(u_p);
-            path += block_sum[blockid[from]][from];
+            path += dist[s][from];
             ans += 2 * (wioska_count[blockid[to]] * path + block_sum[blockid[to]][to]);
-            treedfs(blockid[to]);
-            path -= block_sum[blockid[from]][from];
+            treedfs(blockid[to], from);
+            path -= dist[s][from];
         }
     }
 }
@@ -256,10 +256,10 @@ int main()
             for (int v : blocks[blockid[a]]) vis[v] = -1;
             blockdfs(v, v, a);
         }
-        ans = 2*block_sum[blockid[a]][a];
+        ans += 2*block_sum[blockid[a]][a];
         for (int i = 0; i <= block_count; i++)
             vis[i] = false;
-        treedfs(blockid[a]);
+        treedfs(blockid[a], a);
         cout << ans << '\n';
     }
     return 0;
