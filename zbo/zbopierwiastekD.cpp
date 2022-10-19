@@ -17,7 +17,7 @@ unordered_map<int, int> block_idx; //map blocks to {0, 1, 2, 3...}
 vector<ll> dist; //distance from v to 0
 vector<ll> subtree_size;
 vector<unordered_map<int, ll>> block_sum; //block_sum[block][v] is sum of paths from v to every castle in block
-vector<int> root; //this is in in-order, potentially bugged as fuck
+vector<int> root; //root[v] - index of block in which v is NOTE: this is in in-order, potentially bugged as fuck
 vector<int> blocks; //unique roots
 ll path = 0ll;
 
