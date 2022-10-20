@@ -8,6 +8,8 @@ typedef tuple<int, int, int> iii;
 
 ll n, k;
 ll ans;
+ll cnt1 = 0ll;
+ll cnt2 = 0ll;
 int free_idx = 0;
 int block_count = 0;
 vector<int> idx;             //in-order flattened tree
@@ -28,7 +30,7 @@ vector<int> vertices_without_group;       //used to group vertices
 vector<vector<int>> blocks;               //vertices in one block
 ll path = 0ll;
 
-const ll B = 1000;
+const ll B = 500;
 
 void dfs1(int v)
 {
@@ -61,7 +63,7 @@ void initblockdfs(int v)
             blockAdj[u].push_back({u_p.first, v});
             initblockdfs(u);
         }
-        else if (u == root_of_block[blockid[v]].second)
+        else if (blockid[v] != block_count && u == root_of_block[blockid[v]].second)
         {
             blockAdj[v].push_back({u_p.first, n + blockid[v]});
             blockAdj[n + blockid[v]].push_back({u_p.first, v});
@@ -107,6 +109,7 @@ void blockdfs(int v, int s, int dupa)
     }
     for (ii u_p : blockAdj[v])
     {
+        cnt1++;
         int u = u_p.second;
         if (vis[u] != dupa)
         {
@@ -122,6 +125,7 @@ void treedfs(int v, int s)
     vis[v] = true;
     for (auto u_p : treeAdj[v])
     {
+        cnt2++;
         if (!vis[get<0>(u_p)])
         {
             int from = get<1>(u_p);
@@ -215,7 +219,7 @@ int main()
         treeAdj[i].push_back({blockid[root.second], n + i, root.second});
         treeAdj[blockid[root.second]].push_back({i, root.second, n + i});
     }
-    for (int i = 0; i <= block_count; i++) blockid[n + i] = i;
+    for (int i = 0; i < block_count; i++) blockid[n + i] = i;
     blockAdj.resize(n + block_count + 1);
     vis.clear();
     vis.assign(n, false);
@@ -242,6 +246,15 @@ int main()
     {
         blockdfs(i, i, i);
     }
+    for (int i = 0; i < blockAdj.size(); i++)
+    {
+        if (blockAdj[i].size() > 2*B)
+        {
+            cout << "dupa\n";
+            cout.flush();
+            return 0;
+        }
+    }
     vis.clear();
     vis.assign(2 * n, -1);
     while (k--)
@@ -253,8 +266,7 @@ int main()
         wioska_count[blockid[a]]++;
         for (int v : blocks[blockid[a]])
         {
-            for (int v : blocks[blockid[a]]) vis[v] = -1;
-            blockdfs(v, v, a);
+            block_sum[blockid[v]][v] += dist[v][a];
         }
         ans += 2*block_sum[blockid[a]][a];
         for (int i = 0; i <= block_count; i++)
@@ -262,5 +274,6 @@ int main()
         treedfs(blockid[a], a);
         cout << ans << '\n';
     }
+    cout << "Blockdfs: " << cnt1 << '\n' << "Treedfs: " << cnt2 << '\n';
     return 0;
 }
