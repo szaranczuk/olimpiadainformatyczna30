@@ -7,6 +7,8 @@ typedef pair<int, int> ii;
 
 int main()
 {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
 	ll n, m, k;
 	cin >> n >> m >> k;
 	vector<ll> in(n);

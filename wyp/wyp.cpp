@@ -2,17 +2,17 @@
 
 using namespace std;
 
-const ll INF = 1e18;
 
 typedef long long ll;
 typedef pair<int, int> ii;
-typedef pair<ll, int> li;
+
+const ll INF = 1e13;
 
 struct rational
 {
 	ll p;
 	ll q;
-	rational();
+	rational() {};
 	rational(ll _p, ll _q)
 	{
 		bool sign = false;
@@ -37,6 +37,10 @@ struct rational
 		if (sign) p *= -1;
 	}
 };
+rational operator*(const rational& a, const rational& b)
+{
+	return rational(a.p * b.p, a.q * b.q);
+}
 rational operator+(const rational& a, const rational& b)
 {
 	ll denominator_gcd = __gcd(a.q, b.q);
@@ -129,12 +133,13 @@ struct car
 	rational speed;
 };
 typedef rational rat;
+typedef pair<rat, int> ri;
 
 vector<ll> len_sum;
-vector<li> t;
+vector<ri> t;
 vector<ll> blockidx;
 vector<ii> block;
-vector<li> pierdolniecie;
+vector<ri> pierdolniecie;
 int blockcnt = 0;
 
 inline ll lensum(ll l, ll r)
@@ -143,21 +148,21 @@ inline ll lensum(ll l, ll r)
 	return len_sum[r] - len_sum[l - 1];
 }
 
-li getmax(int l, int r, int tl, int tr, ll v)
+ri getmax(int l, int r, int tl, int tr, ll v)
 {
-	if (tr < l || tl > r) return -INF;
+	if (tr < l || tl > r) return {rational(-INF, 1), -INF};
 	else if (l <= tl || tr <= r) return t[v];
 	else
 	{
 		int tm = (tl + tr) / 2;
-		li res1 = getmax(l, r, tl, tm, 2*v);
-		li res2 = getmax(l, r, tm + 1, tr, 2*v+1);
+		ri res1 = getmax(l, r, tl, tm, 2*v);
+		ri res2 = getmax(l, r, tm + 1, tr, 2*v+1);
 		if (res1.first > res2.first) return res1;
 		return res2;
 	}
 }
 
-void timeupdate(int pos, li val, int tl, int tr, ll v)
+void timeupdate(int pos, ri val, int tl, int tr, ll v)
 {
 	if (tl == tr) t[v] =val;
 	else
@@ -181,6 +186,8 @@ int main()
 	len_sum.resize(n);
 	blockidx.resize(n);
 	block.reserve(n);
+	pierdolniecie.assign(n, {rational(INF, 1), -1});
+	t.resize(5*n);
 	for (int i = 0; i < n; i++)
 	{
 		if (i != 0) len_sum[i] += len_sum[i - 1];
@@ -215,7 +222,7 @@ int main()
 		while (r > l)
 		{
 			int s = (l + r) / 2;
-			li dupa = getmax(i + 1, s, 0, n - 1, 1);
+			ri dupa = getmax(i + 1, s, 0, n - 1, 1); //naprawic - jezeli brak kolizji to zwraca 0/0 i sie wypierdala
 			int guwno = dupa.second;
 			if (trucks[guwno].pos + dupa.first * trucks[guwno].speed - lensum(i + 1, guwno) > trucks[i].pos + dupa.first * trucks[i].speed)
 			{
@@ -226,10 +233,33 @@ int main()
 				r = s;
 			}
 		}
-		li dupa = pierdolniecie[i];
-		int guwno = pierdolniecie[i].second;
-		rat tpos = trucks[i].pos + dupa.first * trucks[i].speed;
-		rat bpos = trucks[guwno].pos + dupa.first * trucks[guwno].speed - lensum(i + 1, guwno);
-		rat t = (bpos - tpos) / (trucks[i].speed - trucks[guwno].speed);
+		ri dupa = pierdolniecie[l];
+		int guwno = pierdolniecie[l].second;
+		rat truck_pos = trucks[i].pos + dupa.first * trucks[i].speed;
+		rat block_pos = trucks[guwno].pos + dupa.first * trucks[guwno].speed - lensum(i + 1, guwno);
+		rat t = (block_pos - truck_pos) / (trucks[i].speed - trucks[guwno].speed);
+		pierdolniecie[i] = {t, guwno};
+		timeupdate(i, pierdolniecie[i], 0, n - 1, 1);
 	}
+	ll res = 1ll;
+	for (int i = 1; i < n; i++)
+	{
+		rat t = (trucks[i].pos - trucks[i].len + bajtazar.pos) / (bajtazar.speed - trucks[i].speed);
+		if (t > pierdolniecie[i].first)
+		{
+
+		}
+		rat pos = bajtazar.pos + bajtazar.speed * t;
+		rat backpos;
+		if (t > pierdolniecie[i - 1].first)
+		{
+			backpos = trucks[pierdolniecie[i - 1].second].pos + trucks[pierdolniecie[i - 1].second].speed * t - lensum(i, pierdolniecie[i - 1].second);
+		}
+		else
+		{
+			backpos = trucks[i - 1].pos + trucks[i - 1].speed * t;
+		}
+		if (pos - backpos >= rational(bajtazar.len, 1)) res++;
+	}
+	cout << res << '\n';
 }
