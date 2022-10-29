@@ -1,0 +1,18 @@
+Liczenie pierdolnięć:
+    Brut:
+        Idąc w kolejności od n - 1 do 0:
+            1. Dla i-tej ciężaruwy chcę mieć seta (jakąkolwiek posortowaną strukturę) z pierdolnięciami dla wszystkich większych od i
+            2. Przeiterować się po niej i wyliczyć po jakim czasie pierdolnie w i + 1-szą
+    Wzorcuwa:
+        Idąc w kolejności od n - 1 do 0:
+            1. Dla i-tej ciężaruwy chcę mieć "tablicę przyłączeń"
+            2. Binsercz po przyłączeniach
+            3. W zamortyzowanym O(n) usuwam wszystkie przed pierdolnięciem
+Liczenie wymijeń
+    Wzorcuwa:
+        1. Posortować pierdolnięcia względem czasu
+        Idąc w kolejności rosnących czasów:
+            2. Policzyć pozycję bajtazara w czasie t
+            3. Sprawdzić ile ciężaruw w międzyczasie wyminął (zamortyzowane O(n))
+            4. Dla każdej z nich sprawdzić czy w czasie mijania odległość między dupą a przodem poprzedniej była większa równa D
+            5. Wrzucić dwie ciężaruwy które ze sobą pierdolnęły do jednego DSU
