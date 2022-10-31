@@ -1,19 +1,359 @@
 #include <bits/stdc++.h>
+#define EL printf("\n")
+#define pb push_back
+#define FOR(i,l,r) for (int i=l;i<=r;i++)
+#define FORD(i,r,l) for (int i=r;i>=l;i--)
 
 using namespace std;
 
 
-typedef long long ll;
+typedef int64_t ll;
 typedef pair<int, int> ii;
+typedef vector<int> BigInt;
+
 
 const ll INF = 1e13;
+const int base = 1e9;
+
+
+void Set(BigInt &a) {
+    while (a.size() > 1 && a.back() == 0) a.pop_back();
+}
+
+void Print(BigInt a) {
+    Set(a);
+    printf("%d", (a.size() == 0) ? 0 : a.back());
+    FORD(i,a.size()-2,0) printf("%09d", a[i]); EL;
+}
+
+BigInt Integer(string s) {
+    BigInt ans;
+    if (s[0] == '-') return ans;
+    if (s.size() == 0) {ans.pb(0); return ans;}
+    while (s.size()%9 != 0) s = '0'+s;
+    for (int i=0;i<s.size();i+=9) {
+        int v = 0;
+        for (int j=i;j<i+9;j++) v = v*10+(s[j]-'0');
+        ans.insert(ans.begin(),v);
+    }
+    Set(ans);
+    return ans;
+}
+
+BigInt Integer(char c[]) {
+    string s = "";
+    FOR(i,0,strlen(c)-1) s = s + c[i];
+    return Integer(s);
+}
+
+BigInt Integer(ll x) {
+    string s = "";
+    while (x > 0) s = char(x%10+'0') + s, x /= 10;
+    return Integer(s);
+}
+
+BigInt Integer(int x) {
+    return Integer((ll) x);
+}
+
+void operator >> (istream &in, BigInt &a) {
+    string s;
+    getline(cin, s);
+    a = Integer(s);
+}
+
+void operator << (ostream &out, BigInt a) {
+    Print(a);
+}
+
+bool operator < (BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    if (a.size() != b.size()) return (a.size() < b.size());
+    FORD(i,a.size()-1,0)
+        if (a[i] != b[i]) return (a[i] < b[i]);
+    return false;
+}
+
+bool operator > (BigInt a, BigInt b) {
+    return (b < a);
+}
+
+bool operator == (BigInt a, BigInt b) {
+    return (!(a < b) && !(b < a));
+}
+
+bool operator <= (BigInt a, BigInt b) {
+    return (a < b || a == b);
+}
+
+bool operator >= (BigInt a, BigInt b) {
+    return (b < a || b == a);
+}
+
+bool operator < (BigInt a, int b) {
+    return (a < Integer(b));
+}
+
+bool operator > (BigInt a, int b) {
+    return (a > Integer(b));
+}
+
+bool operator == (BigInt a, int b) {
+    return (a == Integer(b));
+}
+
+bool operator >= (BigInt a, int b) {
+    return (a >= Integer(b));
+}
+
+bool operator <= (BigInt a, int b) {
+    return (a <= Integer(b));
+}
+
+BigInt max(BigInt a, BigInt b) {
+    if (a > b) return a;
+    return b;
+}
+
+BigInt min(BigInt a, BigInt b) {
+    if (a < b) return a;
+    return b;
+}
+
+BigInt operator + (BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    BigInt ans;
+    int carry = 0;
+    FOR(i,0,max(a.size(), b.size())-1) {
+        if (i < a.size()) carry += a[i];
+        if (i < b.size()) carry += b[i];
+        ans.pb(carry%base);
+        carry /= base;
+    }
+    if (carry) ans.pb(carry);
+    Set(ans);
+    return ans;
+}
+
+BigInt operator + (BigInt a, int b) {
+    return a + Integer(b);
+}
+
+BigInt operator ++ (BigInt &a) { // ++a
+    a = a + 1;
+    return a;
+}
+
+void operator += (BigInt &a, BigInt b) {
+    a = a + b;
+}
+
+void operator += (BigInt &a, int b) {
+    a = a + b;
+}
+
+BigInt operator- (BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    BigInt ans;
+    int carry = 0;
+    FOR(i,0,a.size()-1) {
+        carry += a[i] - (i < b.size() ? b[i] : 0);
+        if (carry < 0) ans.pb(carry+base), carry = -1;
+        else ans.pb(carry), carry = 0;
+    }
+    Set(ans);
+    return ans;
+}
+
+BigInt operator-  (BigInt a, int b) {
+    return a - Integer(b);
+}
+
+void operator -- (BigInt &a) { // --a
+    a = a - 1;
+}
+
+void operator -= (BigInt &a, BigInt b) {
+    a = a - b;
+}
+
+void operator -= (BigInt &a, int b) {
+    a = a - b;
+}
+
+BigInt operator * (BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    BigInt ans;
+    ans.assign(a.size()+b.size(), 0);
+    FOR(i,0,a.size()-1) {
+        ll carry = 0ll;
+        for (int j=0;j<b.size() || carry > 0;j++) {
+            ll s = ans[i+j] + carry + (ll)a[i]*(j<b.size()?(ll)b[j]:0ll);
+            ans[i+j] = s%base;
+            carry = s/base;
+        }
+    }
+    Set(ans);
+    return ans;
+}
+
+BigInt operator * (BigInt a, int b) {
+    return a * Integer(b);
+}
+
+void operator *= (BigInt &a, BigInt b) {
+    a = a * b;
+}
+
+void operator *= (BigInt &a, int b) {
+    a = a * b;
+}
+
+
+
+BigInt operator / (BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    if (b == Integer(0)) return Integer("-1");
+    BigInt ans, cur;
+    FORD(i,a.size()-1,0) {
+        cur.insert(cur.begin(), a[i]);
+        int x = 0, L = 0, R = base;
+        while (L <= R) {
+            int mid = (L+R)>>1;
+            if (b*Integer(mid) > cur) {
+                x = mid;
+                R = mid-1;
+            }
+            else
+                L = mid+1;
+        }
+        cur = cur - Integer(x-1)*b;
+        ans.insert(ans.begin(),x-1);
+    }
+    Set(ans);
+    return ans;
+}
+
+BigInt operator / (BigInt a, int b) {
+    Set(a);
+    BigInt ans;
+    ll cur = 0ll;
+    FORD(i,a.size()-1,0) {
+        cur = (cur*(ll)base + (ll)a[i]);
+        ans.insert(ans.begin(),cur/b);
+        cur %= b;
+    }
+    Set(ans);
+    return ans;
+}
+
+void operator /= (BigInt &a, BigInt b) {
+    a = a / b;
+}
+
+void operator /= (BigInt &a, int b) {
+    a = a / b;
+}
+
+BigInt operator % (BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    if (b == Integer(0)) return Integer("-1");
+    BigInt ans;
+    FORD(i,a.size()-1,0) {
+        ans.insert(ans.begin(), a[i]);
+        int x = 0, L = 0, R = base;
+        while (L <= R) {
+            int mid = (L+R)>>1;
+            if (b*Integer(mid) > ans) {
+                x = mid;
+                R = mid-1;
+            }
+            else
+                L = mid+1;
+        }
+        ans = ans - Integer(x-1)*b;
+    }
+    Set(ans);
+    return ans;
+}
+
+int operator % (BigInt a, int b) {
+    Set(a);
+    if (b == 0) return -1;
+    int ans = 0;
+    FORD(i,a.size()-1,0)
+        ans = (ans*(base%b) + a[i]%b)%b;
+    return ans;
+}
+
+void operator %= (BigInt &a, BigInt b) {
+    a = a % b;
+}
+
+void operator %= (BigInt &a, int b) {
+    a = a % Integer(b);
+}
+
+BigInt gcd(BigInt a, BigInt b) {
+    Set(a);
+    Set(b);
+    while (b > Integer(0)) {
+        BigInt r = a%b;
+        a = b;
+        b = r;
+    }
+    Set(a);
+    return a;
+}
+
+BigInt lcm(BigInt a, BigInt b) {
+    return (a*b/gcd(a,b));
+}
+
+
+BigInt sqrt(BigInt a) {
+    BigInt x0 = a, x1 = (a+1)/2;
+    while (x1 < x0) {
+        x0 = x1;
+        x1 = (x1+a/x1)/2;
+    }
+    return x0;
+}
+
+BigInt pow(BigInt a, BigInt b) {
+    if (b == Integer(0)) return Integer(1);
+    BigInt tmp = pow(a, b/2);
+    if (b%2 == 0) return tmp * tmp;
+    return tmp * tmp * a;
+}
+
+BigInt pow(BigInt a, int b) {
+    return pow(a,(Integer(b)));
+}
+
+int log(int n, BigInt a) { // log_n(a)
+    Set(a);
+    int ans = 0;
+    while (a > Integer(1)) {
+        ans++;
+        a /= n;
+    }
+    return ans;
+}
+
 
 struct rational
 {
-	ll p;
-	ll q;
+	BigInt p;
+	BigInt q;
 	rational() {};
-	rational(ll _p, ll _q)
+	rational(BigInt _p, BigInt _q)
 	{
 		bool sign = false;
 		if (_p < 0 && _q < 0)
@@ -31,16 +371,10 @@ struct rational
 			_p *= -1;
 			sign = true;
 		}
-		ll dupa = __gcd(_p, _q);
+		BigInt dupa = gcd(_p, _q);
 		p = _p / dupa;
 		q = _q / dupa;
 		if (sign) p *= -1;
-	}
-	string to_print()
-	{
-		stringstream ss;
-		ss << p << "/" << q;
-		return ss.str();
 	}
 };
 rational operator*(const rational& a, const rational& b)
@@ -49,65 +383,65 @@ rational operator*(const rational& a, const rational& b)
 }
 rational operator+(const rational& a, const rational& b)
 {
-	ll denominator_gcd = __gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
-	ll new_p = a.p * (new_q / a.q) + b.p * (new_q / b.q);
+	BigInt denominator_gcd = gcd(a.q, b.q);
+	BigInt new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	BigInt new_p = a.p * (new_q / a.q) + b.p * (new_q / b.q);
 	return rational(new_p, new_q);
 }
-rational operator+(ll a, const rational& b)
+rational operator+(BigInt a, const rational& b)
 {
-	ll new_p = a * b.q + b.p;
+	BigInt new_p = a * b.q + b.p;
 	return rational(new_p, b.q);
 }
-rational operator+(const rational& b, ll a)
+rational operator+(const rational& b, BigInt a)
 {
-	ll new_p = a * b.q + b.p;
+	BigInt new_p = a * b.q + b.p;
 	return rational(new_p, b.q);
 }
-rational operator-(ll a, const rational& b)
+rational operator-(BigInt a, const rational& b)
 {
-	ll new_p = a * b.q - b.p;
+	BigInt new_p = a * b.q - b.p;
 	return rational(new_p, b.q);
 }
-rational operator-(const rational& b, ll a)
+rational operator-(const rational& b, BigInt a)
 {
-	ll new_p = -a * b.q + b.p;
+	BigInt new_p = b.p - a * b.q;
 	return rational(new_p, b.q);
 }
 void operator+=(rational& a, const rational& b)
 {
-	ll denominator_gcd = __gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
-	ll new_p = a.p * (new_q / a.q) + b.p * (new_q / b.q);
+	BigInt denominator_gcd = gcd(a.q, b.q);
+	BigInt new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	BigInt new_p = a.p * (new_q / a.q) + b.p * (new_q / b.q);
 	a = rational(new_p, new_q);
 }
 void operator-=(rational& a, const rational& b)
 {
-	ll denominator_gcd = __gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
-	ll new_p = a.p * (new_q / a.q) - b.p * (new_q / b.q);
+	BigInt denominator_gcd = gcd(a.q, b.q);
+	BigInt new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	BigInt new_p = a.p * (new_q / a.q) - b.p * (new_q / b.q);
 	a = rational(new_p, new_q);
 }
 rational operator-(const rational& a, const rational& b)
 {
-	ll denominator_gcd = __gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
-	ll new_p = a.p * (new_q / a.q) - b.p * (new_q / b.q);
+	BigInt denominator_gcd = gcd(a.q, b.q);
+	BigInt new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	BigInt new_p = a.p * (new_q / a.q) - b.p * (new_q / b.q);
 	return rational(new_p, new_q);
 }
-rational operator*(const rational&a, ll b)
+rational operator*(const rational&a, BigInt b)
 {
 	return rational(a.p * b, a.q);
 }
-rational operator*(ll b, const rational& a)
+rational operator*(BigInt b, const rational& a)
 {
 	return rational(a.p * b, a.q);
 }
-rational operator/(const rational&a, ll b)
+rational operator/(const rational&a, BigInt b)
 {
 	return rational(a.p, a.q * b);
 }
-rational operator/(ll b, const rational& a)
+rational operator/(BigInt b, const rational& a)
 {
 	return rational(a.q * b, a.p);
 }
@@ -134,8 +468,8 @@ bool operator>=(const rational& a, const rational& b)
 
 struct car
 {
-	ll pos;
-	ll len;
+	BigInt pos;
+	BigInt len;
 	rational speed;
 };
 typedef rational rat;
@@ -149,7 +483,7 @@ struct dsu_s
 	ri val;
 };
 
-vector<ll> len_sum;
+vector<BigInt> len_sum;
 vector<ri> t;
 vector<ll> blockidx;
 vector<ii> block;
@@ -195,35 +529,10 @@ void dsuunion(int x, int y, const ri val)
 }
 int blockcnt = 0;
 
-inline ll lensum(ll l, ll r)
+inline BigInt lensum(ll l, ll r)
 {
 	if (l == 0) return len_sum[r];
 	return len_sum[r] - len_sum[l - 1];
-}
-
-ri getmax(int l, int r, int tl, int tr, ll v)
-{
-	if (tr < l || tl > r) return {rational(-INF, 1), -INF};
-	else if (l <= tl || tr <= r) return t[v];
-	else
-	{
-		int tm = (tl + tr) / 2;
-		ri res1 = getmax(l, r, tl, tm, 2*v);
-		ri res2 = getmax(l, r, tm + 1, tr, 2*v+1);
-		if (res1.first > res2.first) return res1;
-		return res2;
-	}
-}
-
-void timeupdate(int pos, ri val, int tl, int tr, ll v)
-{
-	if (tl == tr) t[v] =val;
-	else
-	{
-		int tm = (tl + tr) /2;
-		if (pos <= tm) timeupdate(pos, val, tl, tm, 2*v);
-		else timeupdate(pos, val, tm + 1, tr, 2 * v + 1);
-	}
 }
 
 int main()
@@ -232,7 +541,7 @@ int main()
 	cin.tie(0);
 	ll n, D, W, M;
 	cin >> n >> D >> W >> M;
-	car bajtazar = {0, D, rat(W, M)};
+	car bajtazar = {Integer(0), Integer(D), rat(Integer(W), Integer(M))};
 	vector<car> trucks(n);
 	vector<rat> collision_time;
 	vector<rat> collision_speed;
@@ -242,14 +551,14 @@ int main()
 	pierdolniecie.resize(n);
 	t.resize(5*n);
 	dsu.resize(n);
-	for (int i = 0; i < n; i++) makeset(i, {rat(0, 1), i});
+	for (int i = 0; i < n; i++) makeset(i, {rat(Integer(0), Integer(1)), i});
 	for (int i = 0; i < n; i++)
 	{
 		if (i != 0) len_sum[i] += len_sum[i - 1];
 		ll x, d, w, m;
 		cin >> x >>  d >> w >> m;
-		trucks[i] = {x, d, rat(w, m)};
-		len_sum[i] += d;
+		trucks[i] = {Integer(x), Integer(d), rat(Integer(w), Integer(m))};
+		len_sum[i] += Integer(d);
 	}
 	blockidx[0] = 0;
 	block.push_back({0, 0});
@@ -269,42 +578,6 @@ int main()
 	//to jest czesc do liczenia pierdolniec
 	for (int i = n - 1; i >= 0; i--)
 	{
-		/*if (i == block[blockidx[i]].second)
-		{
-			continue;
-		}
-		else if (i == block[blockidx[i]].second - 1)
-		{
-			rat truck_pos = rational(trucks[i].pos, 1);
-			rat block_pos = rational(trucks[i + 1].pos - trucks[i + 1].len, 1);
-			rat t = (block_pos - truck_pos) / (trucks[i].speed - trucks[i + 1].speed);
-			pierdolniecie[i] = {t, i + 1};
-			timeupdate(i, pierdolniecie[i], 0, n - 1, 1);
-			continue;
-		}
-		int l = i + 1;
-		int r = block[blockidx[i]].second;
-		while (r > l)
-		{
-			int s = (l + r) / 2;
-			ri dupa = getmax(i + 1, s, 0, n - 1, 1); //naprawic - jezeli brak kolizji to zwraca 0/0 i sie wypierdala
-			int guwno = dupa.second;
-			if (trucks[guwno].pos + dupa.first * trucks[guwno].speed - lensum(i + 1, guwno) > trucks[i].pos + dupa.first * trucks[i].speed)
-			{
-				l = s + 1;
-			}
-			else
-			{
-				r = s;
-			}
-		}
-		ri dupa = pierdolniecie[l];
-		int guwno = pierdolniecie[l].second;
-		rat truck_pos = trucks[i].pos + dupa.first * trucks[i].speed;
-		rat block_pos = trucks[guwno].pos + dupa.first * trucks[guwno].speed - lensum(i + 1, guwno);
-		rat t = (block_pos - truck_pos) / (trucks[i].speed - trucks[guwno].speed);
-		pierdolniecie[i] = {t, guwno};
-		timeupdate(i, pierdolniecie[i], 0, n - 1, 1);*/
 		int l = 0;
 		int r = przylaczenia.size();
 		int dupa = przylaczenia.size() - 1;
@@ -316,7 +589,7 @@ int main()
 			if (s == przylaczenia.size())
 			{
 				front_truck = przylaczenia[0].second;
-				before_t = rat(INF, 1);
+				before_t = rat(Integer(INF), Integer(1));
 			}
 			else
 			{
@@ -331,8 +604,8 @@ int main()
 		if (l == przylaczenia.size())
 		{
 			przylaczenia.clear();
-			przylaczenia.push_back({rational(0, 1), i});
-			pierdolniecie[i] = {rat(INF, 1), i, i};
+			przylaczenia.push_back({rational(Integer(0), Integer(1)), i});
+			pierdolniecie[i] = {rat(Integer(INF), Integer(1)), i, i};
 		}
 		else
 		{
@@ -348,14 +621,14 @@ int main()
 				przylaczenia.erase(przylaczenia.begin() + cnt);
 			}
 			przylaczenia.push_back(new_entry);
-			przylaczenia.push_back({rat(0, 1), i});
+			przylaczenia.push_back({rat(Integer(0), Integer(1)), i});
 			pierdolniecie[i] = {before_t + t, i, front_truck};
 		}
 	}
 	//to jest czesc do liczenia wymijen
 	ll res = 1ll;
 	sort(pierdolniecie.begin(), pierdolniecie.end());
-	rat prev_bajtazar_pos = rat(0, 1);
+	rat prev_bajtazar_pos = rat(Integer(0), Integer(1));
 	int truck_idx = 1;
 	for (int i = 0; i < n; i++)
 	{
@@ -373,7 +646,7 @@ int main()
 				rat t = (trucks[front_truck].pos - lensum(truck_idx, front_truck)) / (bajtazar.speed - trucks[front_truck].speed);
 				rat right_truck_pos = t * trucks[front_truck].speed + trucks[front_truck].pos - lensum(truck_idx, front_truck);
 				rat left_truck_pos = trucks[truck_idx - 1].speed * t + trucks[truck_idx - 1].pos;
-				if (right_truck_pos - left_truck_pos >= rat(bajtazar.len, 1)) res++;
+				if (right_truck_pos - left_truck_pos >= rat(bajtazar.len, Integer(1))) res++;
 			}
 			truck_idx++;
 			if (truck_idx < n)
@@ -384,20 +657,5 @@ int main()
 		}
 		dsuunion(back_truck, front_truck, {t, front_truck});
 	}
-	/*for (int i = 1; i < n; i++)
-	{
-		rat t = (trucks[i].pos - trucks[i].len + bajtazar.pos) / (bajtazar.speed - trucks[i].speed);
-		rat pos = bajtazar.pos + bajtazar.speed * t;
-		rat backpos;
-		if (t > pierdolniecie[i - 1].first)
-		{
-			backpos = trucks[pierdolniecie[i - 1].second].pos + trucks[pierdolniecie[i - 1].second].speed * t - lensum(i, pierdolniecie[i - 1].second);
-		}
-		else
-		{
-			backpos = trucks[i - 1].pos + trucks[i - 1].speed * t - trucks[i - 1].len;
-		}
-		if (pos - backpos >= rational(bajtazar.len, 1)) res++;
-	}*/
 	cout << res << '\n';
 }
