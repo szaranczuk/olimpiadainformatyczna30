@@ -9,7 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${fileDirname}/${fileBasenameNoExtension}",
-			"args": [],
+			"args": ["<", "/home/szaranczuk/OI/OI30/I etap/wyp/caletesty/wieksze/WYP/wyp412.in"],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],

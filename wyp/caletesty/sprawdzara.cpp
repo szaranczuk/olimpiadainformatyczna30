@@ -14,7 +14,6 @@ int main(int argc, char** argv)
 		system(ss.str().c_str());
 		ss.str("");
 		ss << "diff -wq output1.txt out/" << i << ".out > diff.txt";
-		//cout << ss.str() << '\n';
 		system(ss.str().c_str());
 		if (filesystem::is_empty("diff.txt"))
 		{
