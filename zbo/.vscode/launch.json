@@ -9,7 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${fileDirname}/${fileBasenameNoExtension}",
-			//"args": ["<", "zbo2.in"],
+			"args": ["<", "zbo_testy/5.in"],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],

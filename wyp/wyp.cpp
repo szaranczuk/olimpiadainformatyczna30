@@ -226,8 +226,7 @@ rational operator*(const rational &a, const rational &b)
 }
 rational operator+(const rational &a, const rational &b)
 {
-	ll denominator_gcd = (a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	ll new_q = a.q * b.q;
 	ll new_p = a.p * (new_q / a.q) + b.p * (new_q / b.q);
 	return rational(new_p, new_q);
 }
@@ -253,22 +252,19 @@ rational operator-(const rational &b, ll a)
 }
 void operator+=(rational &a, const rational &b)
 {
-	ll denominator_gcd = gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	ll new_q = a.q * b.q;
 	ll new_p = a.p * (new_q / a.q) + b.p * (new_q / b.q);
 	a = rational(new_p, new_q);
 }
 void operator-=(rational &a, const rational &b)
 {
-	ll denominator_gcd = gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	ll new_q = a.q * b.q;
 	ll new_p = a.p * (new_q / a.q) - b.p * (new_q / b.q);
 	a = rational(new_p, new_q);
 }
 rational operator-(const rational &a, const rational &b)
 {
-	ll denominator_gcd = gcd(a.q, b.q);
-	ll new_q = (max(a.q, b.q) / denominator_gcd) * min(a.q, b.q);
+	ll new_q = a.q * b.q;
 	ll new_p = a.p * (new_q / a.q) - b.p * (new_q / b.q);
 	return rational(new_p, new_q);
 }
